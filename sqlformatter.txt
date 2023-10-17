@@ -1,0 +1,115 @@
+--How many different elements, countries, and years are there?
+SELECT 
+  COUNT(DISTINCT element) AS element, 
+  COUNT(DISTINCT year) AS year, 
+  COUNT(DISTINCT area) AS country 
+FROM 
+  crop_livestock_stats 
+  
+  --What's the total number of animals slaughtered?
+SELECT 
+  count(element) AS num_slaughtered 
+FROM 
+  crop_livestock_stats 
+WHERE 
+  element = 'Producing Animals/Slaughtered' 
+ 
+ 
+ /* or*/ 
+ 
+ 
+SELECT 
+  count(*) AS num_slaughtered 
+FROM 
+  crop_livestock_stats 
+WHERE 
+  element = 'Producing Animals/Slaughtered' 
+  
+--For Canada, the US, and Mexico, beginning after the year 2010, return the average yield by item where the average is > 380000 . 
+SELECT 
+  year, 
+  area, 
+  item, 
+  AVG(value) AS avg_yield 
+FROM 
+  (
+    SELECT 
+      * 
+    FROM 
+      crop_livestock_stats 
+    WHERE 
+      year > 2010 
+      AND area IN (
+        'Canada', 'United States of America', 
+        'Mexico'
+      ) 
+      AND element = 'Yield'
+  ) AS us_canada_mexico --WHERE avg_yield >380000
+GROUP BY 
+  year, 
+  area, 
+  item 
+HAVING 
+  AVG(value) > 380000 
+ORDER BY 
+  avg_yield DESC 
+  
+  
+   /* or*/ 
+   
+   
+SELECT 
+  year, 
+  area, 
+  item, 
+  AVG(value) AS avg_yield 
+FROM 
+  crop_livestock_stats 
+WHERE 
+  year > 2010 
+  AND area IN (
+    'Canada', 'United States of America', 
+    'Mexico'
+  ) 
+  AND element = 'Yield' 
+GROUP BY 
+  year, 
+  area, 
+  item 
+HAVING 
+  AVG(value) > 380000 
+ORDER BY 
+  avg_yield DESC 
+  
+--What is the yearly quantity of each product, measured in tonnes, for each country ranked from largest to smallest quantities? HINT: USE JOIN
+SELECT 
+  year, 
+  area AS country, 
+  item AS produce, 
+  SUM(value) AS avg_qty 
+FROM 
+  crop_livestock_stats 
+WHERE 
+  unit = 'tonnes' 
+GROUP BY 
+  year, 
+  area, 
+  item 
+ORDER BY 
+  avg_qty DESC
+  
+  --For each area (renamed to country), generate a column that lists out the distinct items that the area produces. Order the results alphabetically. HINT: STRING_AGG()
+SELECT 
+  area AS country, 
+  STRING_AGG(
+    DISTINCT item, 
+    '  -  ' 
+    ORDER BY 
+      item
+  ) 
+FROM 
+  crop_livestock_stats 
+GROUP BY 
+  country 
+ORDER BY 
+  country
